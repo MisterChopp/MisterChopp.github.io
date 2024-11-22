@@ -33,6 +33,18 @@
         #horarioEmpleadosTable tbody tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        button {
+            border: none;
+            background-color: #FFA500;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #FF8C00;
+        }
     </style>
 </head>
 <body>
@@ -59,24 +71,37 @@
         <div id="fh5co-main">
             <div class="fh5co-narrow-content animate-box">
                 <h2>Horario de Empleados</h2>
-                <p>Consulta los horarios programados para los próximos días.</p>
-        
-                <!-- Tabla de Horarios -->
-                <table class="table table-bordered table-hover" id="horarioEmpleadosTable">
+                <!-- Tabla con los horarios -->
+                <table id="horarioEmpleadosTable" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Día</th>
                             <th>Empleado</th>
-                            <th>Horario</th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                            <th>Sábado</th>
+                            <th>Domingo</th>
+                            <th>Editar</th>
                         </tr>
                     </thead>
-                    <tbody id="horarioEmpleados">
-                        <!-- Contenido dinámico -->
+                    <tbody id="horarioBody">
+                        <!-- Filas dinámicas generadas con JavaScript -->
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
+        
+            <!-- Modal para editar días de trabajo -->
+            <div id="modalEditarHorario" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; z-index: 1000;">
+                <h3>Editar Días de Trabajo</h3>
+                <p id="nombreEmpleado"></p>
+                <div id="diasCheckboxes">
+                    <!-- Checkboxes generados dinámicamente -->
+                </div>
+                <button onclick="guardarCambios()">Guardar</button>
+                <button onclick="cerrarModal()">Cancelar</button>
+            </div>
 
     <!-- Scripts -->
     <script src="js/jquery.min.js"></script>
@@ -84,51 +109,97 @@
     <script src="js/jquery.waypoints.min.js"></script>
     <script src="js/jquery.flexslider-min.js"></script>
     <script src="js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        // Datos de empleados
+        // Datos iniciales de los empleados
         const empleados = [
-            'Andy Fernandez', 'Walter Lopez', 'Wilfredo Sanchez', 
-            'Luis Gomez', 'Omaar Diaz', 'Max Martinez', 
-            'Ricardo Hernandez', 'Rodrigo Yrigoyen'
+            { nombre: "Andy Fernandez", dias: ["Lunes", "Miércoles", "Viernes"] },
+            { nombre: "Walter Lopez", dias: ["Martes", "Jueves", "Sábado"] },
+            { nombre: "Wilfredo Sanchez", dias: ["Lunes", "Jueves", "Domingo"] },
+            { nombre: "Luis Gomez", dias: ["Martes", "Miércoles", "Viernes"] },
+            { nombre: "Omaar Diaz", dias: ["Lunes", "Martes", "Sábado"] },
+            { nombre: "Max Martinez", dias: ["Miércoles", "Viernes", "Domingo"] },
+            { nombre: "Ricardo Hernandez", dias: ["Jueves", "Sábado", "Domingo"] },
+            { nombre: "Rodrigo Yrigoyn", dias: ["Lunes", "Martes", "Miércoles"] }
         ];
     
-        // Generar días desde la fecha actual
-        const generarDias = (dias) => {
-            const fechaActual = new Date();
-            const diasFuturos = [];
-            for (let i = 0; i < dias; i++) {
-                const dia = new Date(fechaActual);
-                dia.setDate(fechaActual.getDate() + i);
-                const formatoDia = dia.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+        let empleadoSeleccionado = null;
+
+        const generarHorario = () => {
+            const tbody = document.getElementById('horarioBody');
+            tbody.innerHTML = '';
+
+            empleados.forEach((empleado, index) => {
+                const fila = document.createElement('tr');
+                const nombreCelda = document.createElement('td');
+                nombreCelda.textContent = empleado.nombre;
+                fila.appendChild(nombreCelda);
+
+                const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                diasSemana.forEach(dia => {
+                    const diaCelda = document.createElement('td');
+                    diaCelda.textContent = empleado.dias.includes(dia) ? "✔️" : "";
+                    fila.appendChild(diaCelda);
                 });
-                diasFuturos.push(formatoDia);
-            }
-            return diasFuturos;
-        };
-    
-        // Cargar horarios en la tabla
-        const cargarHorario = () => {
-            const dias = generarDias(7); // Próximos 7 días
-            const tbody = document.getElementById('horarioEmpleados');
-            tbody.innerHTML = ''; // Limpiar tabla antes de recargar
-            dias.forEach(dia => {
-                empleados.forEach(empleado => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${dia}</td>
-                            <td>${empleado}</td>
-                            <td>7:00 PM - 7:00 AM</td>
-                        </tr>`;
-                });
+
+                const editarCelda = document.createElement('td');
+                const botonEditar = document.createElement('button');
+                botonEditar.textContent = "Editar";
+                botonEditar.onclick = () => abrirModal(empleado, index);
+                editarCelda.appendChild(botonEditar);
+                fila.appendChild(editarCelda);
+
+                tbody.appendChild(fila);
             });
         };
-    
-        document.addEventListener('DOMContentLoaded', cargarHorario);
+
+        const abrirModal = (empleado, index) => {
+            empleadoSeleccionado = { ...empleado, index };
+            document.getElementById('nombreEmpleado').textContent = `Empleado: ${empleado.nombre}`;
+            const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+            const checkboxes = diasSemana.map(dia => `
+                <label>
+                    <input type="checkbox" value="${dia}" ${empleado.dias.includes(dia) ? "checked" : ""}> ${dia}
+                </label>
+            `).join('<br>');
+            document.getElementById('diasCheckboxes').innerHTML = checkboxes;
+            document.getElementById('modalEditarHorario').style.display = 'block';
+        };
+
+        const cerrarModal = () => {
+            empleadoSeleccionado = null;
+            document.getElementById('modalEditarHorario').style.display = 'none';
+        };
+
+        const guardarCambios = () => {
+            const checkboxes = document.querySelectorAll('#diasCheckboxes input[type="checkbox"]');
+            const diasSeleccionados = Array.from(checkboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            empleados[empleadoSeleccionado.index].dias = diasSeleccionados;
+            generarPDF(empleados);
+            cerrarModal();
+            generarHorario();
+        };
+
+        const generarPDF = (empleados) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text('Horario de Empleados', 10, 10);
+            const encabezado = ['Empleado', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const filas = empleados.map((empleado) => {
+                const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                const dias = diasSemana.map(dia => (empleado.dias.includes(dia) ? "✔️" : ""));
+                return [empleado.nombre, ...dias];
+            });
+            doc.autoTable({ head: [encabezado], body: filas, startY: 20 });
+            doc.save('horarios_empleados.pdf');
+        };
+
+        document.addEventListener('DOMContentLoaded', generarHorario);
     </script>
 </body>
 </html>
