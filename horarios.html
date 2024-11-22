@@ -91,6 +91,13 @@
                     </tbody>
                 </table>
             </div>
+
+
+                <!-- Botón para generar el PDF -->
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="generarPDF(empleados)" style="margin-top: 20px;">Generar PDF</button>
+            </div>
+                   
         
             <!-- Modal para editar días de trabajo -->
             <div id="modalEditarHorario" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; z-index: 1000;">
@@ -102,6 +109,9 @@
                 <button onclick="guardarCambios()">Guardar</button>
                 <button onclick="cerrarModal()">Cancelar</button>
             </div>
+        </div>
+
+      
 
     <!-- Scripts -->
     <script src="js/jquery.min.js"></script>
@@ -179,7 +189,6 @@
                 .filter(checkbox => checkbox.checked)
                 .map(checkbox => checkbox.value);
             empleados[empleadoSeleccionado.index].dias = diasSeleccionados;
-            generarPDF(empleados);
             cerrarModal();
             generarHorario();
         };
