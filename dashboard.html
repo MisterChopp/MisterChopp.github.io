@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mister Chopp - Reportes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/flexslider.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Favicons -->
+    <link href="images/icon.png" rel="icon">
+    <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        #salesReportTable {
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #salesReportTable thead {
+            background-color: #FFA500;
+            color: white;
+        }
+        #salesReportTable th, #salesReportTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .summary-card {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #FFA500;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+            <h1>
+                <a href="index.html">
+                    <img src="images/apple-touch-icon.png" alt="Logo Mister Chopp" style="width: 100%; height: auto;">
+                </a>
+            </h1>
+            <nav id="fh5co-main-menu" role="navigation">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>                    
+                    <li><a href="ventas.html">Registra Venta</a></li>   
+                    <li class="fh5co-active"><a href="dashboard.html">Reportes</a></li>
+                    <li><a href="horarios.html">Horario - Empleados</a></li>
+                    <li><a href="detalle_reservas.html">Reservas</a></li>
+                    <li><a href="login.html">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div id="fh5co-main">
+            <div class="fh5co-narrow-content animate-box">
+                <h2>Reporte de Ventas</h2>
+                <p>Aquí puedes visualizar un registro detallado de las ventas realizadas.</p>
+                
+                <!-- Resumen de Ventas -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h3>Total de Ventas</h3>
+                            <p id="totalSales">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h3>Clientes Atendidos</h3>
+                            <p id="totalCustomers">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h3>Ingresos Totales</h3>
+                            <p>S/<span id="totalIncome">0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfica de Ventas -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 style="margin-top: 50px;">Ventas por Bebida</h3>
+                        <canvas id="salesChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabla de Ventas -->
+                <table class="table table-bordered table-hover" id="salesReportTable">
+                    <thead>
+                        <tr>
+                            <th>N° Pedido</th>
+                            <th>Empleado</th>
+                            <th>Cliente</th>
+                            <th>Trago</th>
+                            <th>Precio (S/)</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesBody">
+                        <!-- Las ventas se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.flexslider-min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+ document.addEventListener('DOMContentLoaded', function () {
+        // Cargar ventas desde LocalStorage
+        const sales = JSON.parse(localStorage.getItem("sales")) || [];
+        const salesBody = document.getElementById("salesBody");
+
+        // Inicialización de los datos de resumen
+        let totalSales = 0;
+        let totalCustomers = new Set();
+        let totalIncome = 0;
+        let salesByDrink = {};
+
+        if (sales.length === 0) {
+            salesBody.innerHTML = '<tr><td colspan="6">No hay ventas registradas.</td></tr>';
+            return;
+        }
+
+        // Mostrar ventas en la tabla y calcular resumen
+        sales.forEach(sale => {
+            totalSales++;
+            totalCustomers.add(sale.customer);
+            totalIncome += parseFloat(sale.price);
+            salesByDrink[sale.drink] = (salesByDrink[sale.drink] || 0) + 1;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${sale.orderNumber}</td>
+                <td>${sale.employee}</td>
+                <td>${sale.customer}</td>
+                <td>${sale.drink}</td>
+                <td>${sale.price}</td>
+                <td>${sale.date}</td>
+            `;
+            salesBody.appendChild(row);
+        });
+
+        // Actualizar resumen
+        document.getElementById('totalSales').innerText = totalSales;
+        document.getElementById('totalCustomers').innerText = totalCustomers.size;
+        document.getElementById('totalIncome').innerText = totalIncome.toFixed(2);
+
+        // Graficar ventas por bebida
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(salesByDrink),
+                datasets: [{
+                    label: 'Ventas por Bebida',
+                    data: Object.values(salesByDrink),
+                    backgroundColor: '#FFA500',
+                    borderColor: '#FFA500',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Bebida'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Ventas'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

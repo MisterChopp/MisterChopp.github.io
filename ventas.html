@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mister Chopp - Ventas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="fh5co-page">
+		<a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+		<aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+			<h1><a href="index.html"><img src="images/apple-touch-icon.png" alt="Logo Mister Chopp" style="width: 100%; height: auto;"></a></h1>
+		
+			<nav id="fh5co-main-menu" role="navigation">
+				<ul>					
+				    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="ventas.html">Registrar Venta</a></li>
+                    <li><a href="dashboard.html">Reportes</a></li>
+                    <li><a href="horarios.html">Horario - Empleados</a></li>
+                    <li><a href="detalle_reservas.html">Reservas</a></li>
+                    <li><a href="login.html">Cerrar Sesión</a></li>
+				</ul>
+			</nav>
+
+			<div class="fh5co-footer">
+				<p><small>&copy; 2024 Mister Chopp. Todos los derechos reservados</span> <span>Diseñado por <a href="http://freehtml5.co/" target="_blank">Grupo 03</a> </span> <span>INHUCO <a href="https://unsplash.com/" target="_blank"> UPN</a></span></small></p>
+				<ul>
+					<li><a href="#"><i class="icon-facebook2"></i></a></li>
+					<li><a href="#"><i class="icon-twitter2"></i></a></li>
+					<li><a href="#"><i class="icon-instagram"></i></a></li>
+					<li><a href="#"><i class="icon-linkedin2"></i></a></li>
+				</ul>
+			</div>
+
+		</aside>
+
+        <div id="fh5co-main">
+            <div id="content-section" class="fh5co-narrow-content animate-box">
+                <h2>Gestión de Ventas</h2>
+                <div class="row">
+      
+                    <!-- Ventas -->
+                    <div class="col-md-6">
+                        <h3>Ventas</h3>
+                        <form id="salesForm">
+                            <div class="form-group">
+                                <label for="employeeSelect">Empleado:</label>
+                                <select id="employeeSelect" class="form-control">
+                                    <option value="E01">Jordi Gonzalez</option>
+                                    <option value="E02">Andy Fernandez</option>
+                                    <option value="E03">Walter Lopez</option>
+                                    <option value="E04">Wilfredo Sanchez</option>
+                                    <option value="E05">Luis Gomez</option>
+                                    <option value="E06">Omaar Diaz</option>
+                                    <option value="E07">Max Martinez</option>
+                                    <option value="E08">Ricardo Hernandez</option>
+                                    <option value="E09">Rodrigo Yrigoyn</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerName">Cliente:</label>
+                                <input type="text" id="customerName" class="form-control" placeholder="Nombre del cliente" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="drinkSelect">Trago:</label>
+                                <select id="drinkSelect" class="form-control">
+                                    <option value="Cuba Libre">Cuba Libre - S/12</option>
+                                    <option value="Chicano de Pisco">Chilcano de Pisco - S/15</option>
+                                    <option value="Perú Libre">Perú Libre - S/14</option>
+                                    <option value="Pisco Sour">Pisco Sour - S/18</option>
+                                    <option value="Screw Driver">Screw Driver - S/16</option>
+                                    <option value="Tequila Sunrise">Tequila Sunrise - S/18</option>
+                                    <option value="Piña Colada">Piña Colada - S/20</option>
+                                    <option value="Orgasmo">Orgasmo - S/22</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-success" onclick="registerSale()">Registrar Venta</button>
+                            </div>
+                        </form>
+                        
+                        
+
+                        <!-- Comprobante de Pago -->
+                        <h4>Comprobante de Pago</h4>
+                        <div id="receipt" class="border p-3" style="display: none;">
+                            <p><strong>N° de Pedido:</strong> <span id="orderNumber"></span></p>
+                            <p><strong>Empleado:</strong> <span id="receiptEmployee"></span></p>
+                            <p><strong>Cliente:</strong> <span id="receiptCustomer"></span></p>
+                            <p><strong>Trago:</strong> <span id="receiptDrink"></span></p>
+                            <p><strong>Precio:</strong> S/<span id="receiptPrice"></span></p>
+                            <p><strong>Fecha:</strong> <span id="receiptDate"></span></p>
+                        </div>
+                    </div>                
+                 
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.flexslider-min.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+          let orderCounter = localStorage.getItem('orderCounter') ? parseInt(localStorage.getItem('orderCounter')) : 1;
+
+            // Función para registrar la venta y mostrar el comprobante
+            function registerSale() {
+                const employeeSelect = document.getElementById("employeeSelect");
+                const customerName = document.getElementById("customerName").value;
+                const drinkSelect = document.getElementById("drinkSelect");
+
+                if (!customerName) {
+                    alert("Por favor, ingrese el nombre del cliente.");
+                    return;
+                }
+
+                const employee = employeeSelect.options[employeeSelect.selectedIndex].text;
+                const drink = drinkSelect.options[drinkSelect.selectedIndex].text;
+                const price = drink.split(" - S/")[1];
+                const date = new Date().toLocaleDateString();
+
+                // Crear la venta
+                const sale = {
+                    orderNumber: orderCounter,
+                    employee: employee,
+                    customer: customerName,
+                    drink: drink.split(" -")[0],
+                    price: price,
+                    date: date
+                };
+
+                // Almacenar la venta en LocalStorage
+                let sales = JSON.parse(localStorage.getItem("sales")) || [];
+                sales.push(sale);
+                localStorage.setItem("sales", JSON.stringify(sales));
+
+                // Mostrar comprobante de pago
+                document.getElementById("orderNumber").textContent = sale.orderNumber;
+                document.getElementById("receiptEmployee").textContent = sale.employee;
+                document.getElementById("receiptCustomer").textContent = sale.customer;
+                document.getElementById("receiptDrink").textContent = sale.drink;
+                document.getElementById("receiptPrice").textContent = sale.price;
+                document.getElementById("receiptDate").textContent = sale.date;
+
+                document.getElementById("receipt").style.display = "block";
+                document.getElementById("salesForm").reset();
+
+                // Actualizar el contador de pedidos en localStorage
+                orderCounter++;
+                localStorage.setItem('orderCounter', orderCounter);
+            }
+    </script>
+</body>
+</html>

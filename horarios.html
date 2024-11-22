@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mister Chopp - Horarios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/flexslider.css">
+    <link rel="stylesheet" href="css/style.css">
+    	<!-- Favicons -->
+        <link href="images/icon.png" rel="icon">
+        <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
+    <style>
+        /* Estilos de la tabla */
+        #horarioEmpleadosTable {
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #horarioEmpleadosTable thead {
+            background-color: #FFA500;
+            color: white;
+        }
+        #horarioEmpleadosTable th, #horarioEmpleadosTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        #horarioEmpleadosTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+            <h1>
+                <a href="index.html">
+                    <img src="images/apple-touch-icon.png" alt="Logo Mister Chopp" style="width: 100%; height: auto;">
+                </a>
+            </h1>
+            <nav id="fh5co-main-menu" role="navigation">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>      
+                    <li><a href="ventas.html">Registra Venta</a></li>                
+                    <li><a href="dashboard.html">Reportes</a></li>
+                    <li class="fh5co-active"><a href="horarios.html">Horario - Empleados</a></li>
+                    <li><a href="detalle_reservas.html">Reservas</a></li>
+                    <li><a href="login.html">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div id="fh5co-main">
+            <div class="fh5co-narrow-content animate-box">
+                <h2>Horario de Empleados</h2>
+                <p>Consulta los horarios programados para los próximos días.</p>
+        
+                <!-- Tabla de Horarios -->
+                <table class="table table-bordered table-hover" id="horarioEmpleadosTable">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Empleado</th>
+                            <th>Horario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="horarioEmpleados">
+                        <!-- Contenido dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.flexslider-min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        // Datos de empleados
+        const empleados = [
+            'Andy Fernandez', 'Walter Lopez', 'Wilfredo Sanchez', 
+            'Luis Gomez', 'Omaar Diaz', 'Max Martinez', 
+            'Ricardo Hernandez', 'Rodrigo Yrigoyen'
+        ];
+    
+        // Generar días desde la fecha actual
+        const generarDias = (dias) => {
+            const fechaActual = new Date();
+            const diasFuturos = [];
+            for (let i = 0; i < dias; i++) {
+                const dia = new Date(fechaActual);
+                dia.setDate(fechaActual.getDate() + i);
+                const formatoDia = dia.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                diasFuturos.push(formatoDia);
+            }
+            return diasFuturos;
+        };
+    
+        // Cargar horarios en la tabla
+        const cargarHorario = () => {
+            const dias = generarDias(7); // Próximos 7 días
+            const tbody = document.getElementById('horarioEmpleados');
+            tbody.innerHTML = ''; // Limpiar tabla antes de recargar
+            dias.forEach(dia => {
+                empleados.forEach(empleado => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${dia}</td>
+                            <td>${empleado}</td>
+                            <td>7:00 PM - 7:00 AM</td>
+                        </tr>`;
+                });
+            });
+        };
+    
+        document.addEventListener('DOMContentLoaded', cargarHorario);
+    </script>
+</body>
+</html>
