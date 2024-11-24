@@ -69,6 +69,12 @@
         <div id="fh5co-main">
             <div class="fh5co-narrow-content animate-box">  
                 <h2>Inventario de Productos</h2>
+                
+                <!-- Botón para generar PDF -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button id="generatePDF">Generar PDF</button>
+                </div>
+                
                 <table class="table table-bordered" id="horarioEmpleadosTable">
                     <thead>
                         <tr>
@@ -84,15 +90,19 @@
         </div>
     </div>
 
+
+
     <!-- Scripts principales -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.waypoints.min.js"></script>
     <script src="js/jquery.flexslider-min.js"></script>
     <script src="js/main.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <!-- Script para cargar el inventario -->
     <script>
+        
     // Función para cargar inventario y mostrar en la tabla
     function loadInventory() {
         const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
@@ -151,8 +161,44 @@
             // Confirmación al usuario
             alert(`El stock del producto ID ${id} se ha actualizado a ${newStock}`);
         }
+    
+                const generarPDF = (productos) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Agregar título
+            doc.setFontSize(16);
+            doc.text('Inventario de Productos', 10, 10);
+            
+            // Definir encabezados
+            const encabezado = ['ID', 'Producto', 'Stock Disponible'];
+            
+            // Generar filas a partir de los productos
+            const filas = productos.map(producto => [
+                producto.id,         // ID del producto
+                producto.name,       // Nombre del producto
+                producto.stock       // Stock disponible
+            ]);
+            
+            // Generar la tabla
+            doc.autoTable({
+                head: [encabezado],
+                body: filas,
+                startY: 20,
+            });
+            
+            // Guardar el archivo PDF
+            doc.save('inventario_productos.pdf');
+        };
+
+        // Evento para generar el PDF al hacer clic en el botón
+        document.getElementById('generatePDF').addEventListener('click', () => {
+            const productos = JSON.parse(localStorage.getItem("inventory")) || [];
+            generarPDF(productos);
+        });
     // Cargar la tabla al iniciar la página
-    window.onload = loadInventory;
+    window.onload = loadInventory;    
+    
     </script>
 </body>
 </html>
