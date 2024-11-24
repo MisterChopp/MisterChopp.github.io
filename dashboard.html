@@ -59,6 +59,7 @@
                 <ul>
                     <li><a href="index.html">Inicio</a></li>                    
                     <li><a href="ventas.html">Registra Venta</a></li>   
+                    <li><a href="productos.html">Inventario</a></li>
                     <li class="fh5co-active"><a href="dashboard.html">Reportes</a></li>
                     <li><a href="horarios.html">Horario - Empleados</a></li>
                     <li><a href="detalle_reservas.html">Reservas</a></li>
@@ -130,27 +131,31 @@
     <script src="js/main.js"></script>
 
     <script>
- document.addEventListener('DOMContentLoaded', function () {
-        // Cargar ventas desde LocalStorage
-        const sales = JSON.parse(localStorage.getItem("sales")) || [];
-        const salesBody = document.getElementById("salesBody");
+       
+        document.addEventListener('DOMContentLoaded', function () {
+                // Cargar ventas desde LocalStorage
+                const sales = JSON.parse(localStorage.getItem("sales")) || [];
+                const salesBody = document.getElementById("salesBody");
 
-        // Inicialización de los datos de resumen
-        let totalSales = 0;
-        let totalCustomers = new Set();
-        let totalIncome = 0;
-        let salesByDrink = {};
+                // Inicialización de los datos de resumen
+                let totalSales = 0;
+                let totalCustomers = new Set();
+                let totalIncome = 0;
+                let salesByDrink = {};
 
-        if (sales.length === 0) {
-            salesBody.innerHTML = '<tr><td colspan="6">No hay ventas registradas.</td></tr>';
-            return;
-        }
+                if (sales.length === 0) {
+                    salesBody.innerHTML = '<tr><td colspan="6">No hay ventas registradas.</td></tr>';
+                    return;
+                }
 
-        // Mostrar ventas en la tabla y calcular resumen
-        sales.forEach(sale => {
+            sales.forEach(sale => {
             totalSales++;
             totalCustomers.add(sale.customer);
-            totalIncome += parseFloat(sale.price);
+
+            // Asegúrate de que el precio sea válido
+            const salePrice = parseFloat(sale.price) || 0;
+            totalIncome += salePrice;
+
             salesByDrink[sale.drink] = (salesByDrink[sale.drink] || 0) + 1;
 
             const row = document.createElement("tr");
@@ -159,13 +164,13 @@
                 <td>${sale.employee}</td>
                 <td>${sale.customer}</td>
                 <td>${sale.drink}</td>
-                <td>${sale.price}</td>
+                <td>${salePrice.toFixed(2)}</td>
                 <td>${sale.date}</td>
             `;
             salesBody.appendChild(row);
         });
 
-        // Actualizar resumen
+        // Actualizar el resumen
         document.getElementById('totalSales').innerText = totalSales;
         document.getElementById('totalCustomers').innerText = totalCustomers.size;
         document.getElementById('totalIncome').innerText = totalIncome.toFixed(2);

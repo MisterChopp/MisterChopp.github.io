@@ -18,7 +18,8 @@
 			<nav id="fh5co-main-menu" role="navigation">
 				<ul>					
 				    <li><a href="index.html">Inicio</a></li>
-                    <li><a href="ventas.html">Registrar Venta</a></li>
+                    <li class="fh5co-active"><a href="ventas.html">Registrar venta</a></li>
+                    <li><a href="productos.html">Inventario</a></li>
                     <li><a href="dashboard.html">Reportes</a></li>
                     <li><a href="horarios.html">Horario - Empleados</a></li>
                     <li><a href="detalle_reservas.html">Reservas</a></li>
@@ -103,52 +104,126 @@
     <script>
           let orderCounter = localStorage.getItem('orderCounter') ? parseInt(localStorage.getItem('orderCounter')) : 1;
 
-            // Función para registrar la venta y mostrar el comprobante
-            function registerSale() {
-                const employeeSelect = document.getElementById("employeeSelect");
-                const customerName = document.getElementById("customerName").value;
-                const drinkSelect = document.getElementById("drinkSelect");
 
-                if (!customerName) {
-                    alert("Por favor, ingrese el nombre del cliente.");
-                    return;
+            // Simulación del inventario (equivalente a la tabla Productos)
+            let inventory = JSON.parse(localStorage.getItem("inventory")) || [
+                { id: 'PR01', name: 'Sprite', stock: 50 },
+                { id: 'PR02', name: 'Pisco Nacional Quebranta', stock: 20 },
+                { id: 'PR03', name: 'Limón', stock: 100 },
+                { id: 'PR04', name: 'Coca Cola', stock: 40 },
+                { id: 'PR05', name: 'Clara de huevo', stock: 60 },
+                { id: 'PR06', name: 'Agua', stock: 100 },
+                { id: 'PR07', name: 'Jarabe de Goma', stock: 30 },
+                { id: 'PR08', name: 'Amargo de Angostura', stock: 15 },
+                { id: 'PR09', name: 'Jugo de Naranja', stock: 25 },
+                { id: 'PR10', name: 'Jarabe de Granadina', stock: 20 },
+                { id: 'PR11', name: 'Vodka', stock: 10 },
+                { id: 'PR12', name: 'Tequila', stock: 12 },
+                { id: 'PR13', name: 'Piña', stock: 30 },
+                { id: 'PR14', name: 'Crema de Coco', stock: 15 },
+                { id: 'PR15', name: 'Ron Blanco', stock: 10 },
+                { id: 'PR16', name: 'Licor de Café', stock: 27 },
+                { id: 'PR17', name: 'Bayleys', stock: 15 },
+                { id: 'PR18', name: 'Amaretto', stock: 27 },
+                { id: 'PR19', name: 'Leche', stock: 50 },
+                { id: 'PR20', name: 'Ron', stock: 10 },
+                { id: 'PR21', name: 'Cola', stock: 50 },
+            ];
+
+            // Guardar el inventario inicial si no existe en LocalStorage
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+
+            // Relación entre tragos y productos
+            const drinkIngredients = {
+                'Cuba Libre': ['PR20', 'PR04', 'PR03'], // Ron, Coca Cola, Limón
+                'Chilcano de Pisco': ['PR02', 'PR01', 'PR03'], // Pisco, Sprite, Limón
+                'Perú Libre': ['PR02', 'PR04', 'PR03'], // Pisco, Coca Cola, Limón
+                'Pisco Sour': ['PR02', 'PR05', 'PR03', 'PR06', 'PR07', 'PR08'], // Pisco, Clara, Limón, Agua, Goma, Amargo
+                'Screw Driver': ['PR11', 'PR09', 'PR10'], // Vodka, Jugo de Naranja, Granadina
+                'Tequila Sunrise': ['PR12', 'PR09', 'PR10'], // Tequila, Naranja, Granadina
+                'Piña Colada': ['PR15', 'PR13', 'PR14', 'PR06'], // Ron Blanco, Piña, Crema Coco, Agua
+                'Orgasmo': ['PR16', 'PR17', 'PR18', 'PR19'], // Café, Bayleys, Amaretto, Leche
+            };
+
+            // Función para actualizar el inventario
+            function updateInventory(drinkName) {
+                const ingredients = drinkIngredients[drinkName];
+                let updatedInventory = JSON.parse(localStorage.getItem("inventory"));
+                let hasStock = true;
+
+                // Validar si hay suficiente stock para todos los ingredientes
+                ingredients.forEach((productId) => {
+                    let product = updatedInventory.find(item => item.id === productId);
+                    if (!product || product.stock <= 0) {
+                        hasStock = false;
+                        alert(`Producto agotado: ${product ? product.name : productId}`);
+                    }
+                });
+
+                // Si todos los ingredientes tienen stock, reducirlos
+                if (hasStock) {
+                    ingredients.forEach((productId) => {
+                        let product = updatedInventory.find(item => item.id === productId);
+                        if (product) {
+                            product.stock--; // Reducir la cantidad
+                        }
+                    });
+
+                    // Guardar cambios en LocalStorage
+                    localStorage.setItem("inventory", JSON.stringify(updatedInventory));
+                } else {
+                    throw new Error("No hay suficiente stock para completar la venta.");
                 }
+            }
 
-                const employee = employeeSelect.options[employeeSelect.selectedIndex].text;
-                const drink = drinkSelect.options[drinkSelect.selectedIndex].text;
-                const price = drink.split(" - S/")[1];
+            function registerSale() {
+            const employeeSelect = document.getElementById("employeeSelect");
+            const customerName = document.getElementById("customerName").value;
+            const drinkSelect = document.getElementById("drinkSelect");
+
+            if (!customerName) {
+                alert("Por favor, ingrese el nombre del cliente.");
+                return;
+            }
+
+            const employee = employeeSelect.options[employeeSelect.selectedIndex].text;
+            const drinkInfo = drinkSelect.options[drinkSelect.selectedIndex].text;
+            const drinkName = drinkInfo.split(" -")[0];
+            const price = parseFloat(drinkInfo.split("S/")[1]);
+
+            try {
+                updateInventory(drinkName); // Reducir inventario
                 const date = new Date().toLocaleDateString();
 
-                // Crear la venta
                 const sale = {
                     orderNumber: orderCounter,
                     employee: employee,
                     customer: customerName,
-                    drink: drink.split(" -")[0],
-                    price: price,
-                    date: date
+                    drink: drinkName,
+                    price: price, // Agregar precio al objeto venta
+                    date: date,
                 };
 
-                // Almacenar la venta en LocalStorage
                 let sales = JSON.parse(localStorage.getItem("sales")) || [];
                 sales.push(sale);
                 localStorage.setItem("sales", JSON.stringify(sales));
 
-                // Mostrar comprobante de pago
+                // Mostrar comprobante
                 document.getElementById("orderNumber").textContent = sale.orderNumber;
                 document.getElementById("receiptEmployee").textContent = sale.employee;
                 document.getElementById("receiptCustomer").textContent = sale.customer;
                 document.getElementById("receiptDrink").textContent = sale.drink;
-                document.getElementById("receiptPrice").textContent = sale.price;
+                document.getElementById("receiptPrice").textContent = sale.price.toFixed(2);
                 document.getElementById("receiptDate").textContent = sale.date;
-
                 document.getElementById("receipt").style.display = "block";
-                document.getElementById("salesForm").reset();
 
-                // Actualizar el contador de pedidos en localStorage
                 orderCounter++;
                 localStorage.setItem('orderCounter', orderCounter);
+                document.getElementById("salesForm").reset();
+            } catch (error) {
+                console.error(error.message);
             }
+        }
     </script>
 </body>
 </html>

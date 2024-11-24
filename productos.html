@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mister Chopp - Inventario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/flexslider.css">
+    <link rel="stylesheet" href="css/style.css">
+    	<!-- Favicons -->
+        <link href="images/icon.png" rel="icon">
+        <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
+    <style>
+        /* Estilos de la tabla */
+        #horarioEmpleadosTable {
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #horarioEmpleadosTable thead {
+            background-color: #FFA500;
+            color: white;
+        }
+        #horarioEmpleadosTable th, #horarioEmpleadosTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        #horarioEmpleadosTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        button {
+            border: none;
+            background-color: #FFA500;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #FF8C00;
+        }
+    </style>
+</head>
+<body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+            <h1><a href="index.html"><img src="images/apple-touch-icon.png" alt="Logo Mister Chopp" style="width: 100%; height: auto;"></a></h1>
+            <nav id="fh5co-main-menu" role="navigation">
+                <ul>					
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="ventas.html">Registrar Venta</a></li>
+                    <li class="fh5co-active"><a href="productos.html">Inventario</a></li>                   
+                    <li><a href="dashboard.html">Reportes</a></li>
+                    <li><a href="horarios.html">Horario - Empleados</a></li>
+                    <li><a href="detalle_reservas.html">Reservas</a></li>
+                    <li><a href="login.html">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <div id="fh5co-main">
+            <div class="fh5co-narrow-content animate-box">  
+                <h2>Inventario de Productos</h2>
+                <table class="table table-bordered" id="horarioEmpleadosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Stock Disponible</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts principales -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.flexslider-min.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Script para cargar el inventario -->
+    <script>
+    // Función para cargar inventario y mostrar en la tabla
+    function loadInventory() {
+        const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+        const table = document.getElementById("inventoryTable");
+        table.innerHTML = "";
+
+        inventory.forEach(item => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>
+                    <input type="number" value="${item.stock}" class="stock-input" data-id="${item.id}" style="width: 80px; text-align: center;">
+                </td>
+                <td>
+                    <button class="save-btn" data-id="${item.id}">Guardar</button>
+                </td>
+            `;
+
+            table.appendChild(row);
+        });
+
+                // Agregar eventos a los botones dinámicamente
+                document.querySelectorAll('.save-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.dataset.id; // Obtener el ID del botón
+                        saveStock(id);
+                    });
+                });
+    }
+
+        function saveStock(id) {
+            const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+            const inputField = document.querySelector(`.stock-input[data-id='${id}']`);
+            const newStock = parseInt(inputField.value);
+
+            // Validar que el nuevo stock sea un número válido
+            if (isNaN(newStock) || newStock < 0) {
+                alert("Por favor, ingrese un valor de stock válido (número entero no negativo).");
+                return;
+            }
+
+            // Actualizar el inventario con el nuevo stock
+            const item = inventory.find(product => product.id == id); // Usamos comparación flexible
+            if (item) {
+                item.stock = newStock;
+            } else {
+                alert(`El producto con ID ${id} no fue encontrado.`);
+                return;
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+
+            // Confirmación al usuario
+            alert(`El stock del producto ID ${id} se ha actualizado a ${newStock}`);
+        }
+    // Cargar la tabla al iniciar la página
+    window.onload = loadInventory;
+    </script>
+</body>
+</html>
