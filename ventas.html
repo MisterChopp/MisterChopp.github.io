@@ -163,21 +163,22 @@
                     <div class="col-md-6">
                         <h2></h2>                        
                         <h3 class="text-warning"><i class="fas fa-receipt"></i> Comprobante de Pago</h3>
-                      
-                        <div id="receipt" class="bg-white border p-4 rounded shadow-sm" style="display: none;">
-                            <h1></h1>
+                        
+                        <div id="receipt">
                             <p><strong>N° de Pedido:</strong> <span id="orderNumber"></span></p>
                             <p><strong>Empleado:</strong> <span id="receiptEmployee"></span></p>
                             <p><strong>Cliente:</strong> <span id="receiptCustomer"></span></p>
-                            <p><strong>Trago:</strong> <span id="receiptDrink"></span></p>
-                            <p><strong>Precio:</strong> S/<span id="receiptPrice"></span></p>
+                            <p><strong>Bebidas y Precios:</strong> <span id="receiptDrink"></span></p>
+                            <p><strong>Total:</strong> S/<span id="receiptPrice"></span></p>
                             <p><strong>Fecha:</strong> <span id="receiptDate"></span></p>
                         </div>
+                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.waypoints.min.js"></script>
@@ -255,70 +256,91 @@
         }
         
         function registerSale() {
-            const employeeSelect = document.getElementById("employeeSelect");
-            const customerName = document.getElementById("customerName").value;
-            const drinkOptions = document.querySelectorAll("#drinkOptions input:checked");
-        
-            if (!customerName) {
-                alert("Por favor, ingrese el nombre del cliente.");
-                return;
-            }
-        
-            if (drinkOptions.length === 0) {
-                alert("Por favor, seleccione al menos un trago.");
-                return;
-            }
-        
-            const employee = employeeSelect.options[employeeSelect.selectedIndex].text;
-            const date = new Date().toLocaleDateString();
-            let sales = JSON.parse(localStorage.getItem("sales")) || [];
-        
-            try {
-                const drinkNames = [];
-                let total = 0;
-                drinkOptions.forEach(option => {
-                    const drinkInfo = option.value;
-                    const drinkName = drinkInfo.split(" -")[0];
-                    const price = parseFloat(drinkInfo.split("S/")[1]);
-                    drinkNames.push(drinkName);
-                    total += price;
-                });
-        
-                // Reducir inventario
-                updateInventory(drinkNames);
-        
-                const sale = {
-                    orderNumber: orderCounter,
-                    employee: employee,
-                    customer: customerName,
-                    drinks: drinkNames,
-                    total: total,
-                    date: date,
-                };
-        
-                sales.push(sale);
-        
-                // Mostrar comprobante
-                document.getElementById("orderNumber").textContent = sale.orderNumber;
-                document.getElementById("receiptEmployee").textContent = sale.employee;
-                document.getElementById("receiptCustomer").textContent = sale.customer;
-                document.getElementById("receiptDrink").textContent = sale.drinks.join(", ");
-                document.getElementById("receiptPrice").textContent = sale.total.toFixed(2);
-                document.getElementById("receiptDate").textContent = sale.date;
-                document.getElementById("receipt").style.display = "block";
-        
-                // Generar PDF
-                generatePDF(sale);
-        
-                // Incrementar el número de pedido
-                orderCounter++;
-                localStorage.setItem("orderCounter", orderCounter.toString());
-                localStorage.setItem("sales", JSON.stringify(sales));
-                alert("Venta registrada con éxito.");
-            } catch (error) {
-                alert(error.message);
-            }
+    const employeeSelect = document.getElementById("employeeSelect");
+    const customerName = document.getElementById("customerName").value;
+    const drinkOptions = document.querySelectorAll("#drinkOptions input:checked");
+
+    if (!customerName) {
+        alert("Por favor, ingrese el nombre del cliente.");
+        return;
+    }
+
+    if (drinkOptions.length === 0) {
+        alert("Por favor, seleccione al menos un trago.");
+        return;
+    }
+
+    const employee = employeeSelect.options[employeeSelect.selectedIndex].text;
+    const date = new Date().toLocaleDateString();
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
+
+    try {
+        const drinkNames = [];
+        const drinkPrices = [];
+        let total = 0;
+
+        // Iterar sobre las opciones seleccionadas y extraer los datos
+        drinkOptions.forEach(option => {
+            const drinkInfo = option.value;
+            const drinkName = drinkInfo.split(" -")[0];
+            const price = parseFloat(drinkInfo.split("S/")[1]);
+
+            // Guardar datos individuales
+            drinkNames.push(drinkName);
+            drinkPrices.push(price);
+            total += price;
+        });
+
+        // Verificar si hay precios
+        if (drinkPrices.length === 0) {
+            throw new Error("No se encontraron precios para los tragos seleccionados.");
         }
+
+        // Reducir inventario
+        updateInventory(drinkNames);
+
+        // Crear el objeto de venta
+        const sale = {
+            orderNumber: orderCounter,
+            employee: employee,
+            customer: customerName,
+            drinks: drinkNames,
+            price: drinkPrices, // Precios individuales
+            total: total, // Suma total
+            date: date,
+        };
+
+        sales.push(sale);
+
+        // Guardar en localStorage
+        localStorage.setItem("sales", JSON.stringify(sales));
+
+        // Mostrar comprobante con precios detallados
+        const receiptDetails = drinkNames.map((drink, index) => {
+            const price = drinkPrices[index].toFixed(2);
+            return `${drink} (S/${price})`;
+        }).join(", ");
+
+        document.getElementById("orderNumber").textContent = sale.orderNumber;
+        document.getElementById("receiptEmployee").textContent = sale.employee;
+        document.getElementById("receiptCustomer").textContent = sale.customer;
+        document.getElementById("receiptDrink").textContent = receiptDetails;
+        document.getElementById("receiptPrice").textContent = sale.total.toFixed(2);
+        document.getElementById("receiptDate").textContent = sale.date;
+        document.getElementById("receipt").style.display = "block";
+
+        // Generar PDF
+        generatePDF(sale);
+
+        // Incrementar el número de pedido
+        orderCounter++;
+        localStorage.setItem("orderCounter", orderCounter.toString());
+        alert("Venta registrada con éxito.");
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
         
         async function generatePDF(sale) {
     const { jsPDF } = window.jspdf;

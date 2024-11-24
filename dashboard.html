@@ -131,83 +131,95 @@
     <script src="js/main.js"></script>
 
     <script>
-       
-        document.addEventListener('DOMContentLoaded', function () {
-                // Cargar ventas desde LocalStorage
-                const sales = JSON.parse(localStorage.getItem("sales")) || [];
-                const salesBody = document.getElementById("salesBody");
+document.addEventListener('DOMContentLoaded', function () {
+    // Cargar ventas desde LocalStorage
+    const sales = JSON.parse(localStorage.getItem("sales")) || [];
+    const salesBody = document.getElementById("salesBody");
 
-                // Inicialización de los datos de resumen
-                let totalSales = 0;
-                let totalCustomers = new Set();
-                let totalIncome = 0;
-                let salesByDrink = {};
+    // Inicialización de los datos de resumen
+    let totalSales = 0;
+    let totalCustomers = new Set();
+    let totalIncome = 0;
+    let salesByDrink = {};
 
-                if (sales.length === 0) {
-                    salesBody.innerHTML = '<tr><td colspan="6">No hay ventas registradas.</td></tr>';
-                    return;
-                }
+    if (sales.length === 0) {
+        salesBody.innerHTML = '<tr><td colspan="6">No hay ventas registradas.</td></tr>';
+        return;
+    }
 
-            sales.forEach(sale => {
-            totalSales++;
+    sales.forEach(sale => {
+        totalSales++;
+
+        // Asegurarse de que `drinks` y `price` son arrays
+        const drinks = Array.isArray(sale.drinks) ? sale.drinks : [sale.drinks];
+        const prices = Array.isArray(sale.price) ? sale.price : [sale.price];
+
+        drinks.forEach((drink, index) => {
             totalCustomers.add(sale.customer);
 
-            // Asegúrate de que el precio sea válido
-            const salePrice = parseFloat(sale.price) || 0;
-            totalIncome += salePrice;
+            // Obtener el precio correspondiente
+            const salePrice = parseFloat(prices[index]);
+            if (!isNaN(salePrice)) {
+                totalIncome += salePrice;
+            } else {
+                console.error(`Precio inválido encontrado: ${prices[index]}`);
+            }
 
-            salesByDrink[sale.drink] = (salesByDrink[sale.drink] || 0) + 1;
+            // Contabilizar las ventas por bebida
+            salesByDrink[drink] = (salesByDrink[drink] || 0) + 1;
 
+            // Crear una nueva fila en la tabla
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${sale.orderNumber}</td>
                 <td>${sale.employee}</td>
                 <td>${sale.customer}</td>
-                <td>${sale.drink}</td>
-                <td>${salePrice.toFixed(2)}</td>
+                <td>${drink}</td>
+                <td>${salePrice ? salePrice.toFixed(2) : "0.00"}</td>
                 <td>${sale.date}</td>
             `;
             salesBody.appendChild(row);
         });
+    });
 
-        // Actualizar el resumen
-        document.getElementById('totalSales').innerText = totalSales;
-        document.getElementById('totalCustomers').innerText = totalCustomers.size;
-        document.getElementById('totalIncome').innerText = totalIncome.toFixed(2);
+    // Actualizar el resumen
+    document.getElementById('totalSales').innerText = totalSales;
+    document.getElementById('totalCustomers').innerText = totalCustomers.size;
+    document.getElementById('totalIncome').innerText = totalIncome.toFixed(2);
 
-        // Graficar ventas por bebida
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(salesByDrink),
-                datasets: [{
-                    label: 'Ventas por Bebida',
-                    data: Object.values(salesByDrink),
-                    backgroundColor: '#FFA500',
-                    borderColor: '#FFA500',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Bebida'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Ventas'
-                        }
+    // Graficar ventas por bebida
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(salesByDrink),
+            datasets: [{
+                label: 'Ventas por Bebida',
+                data: Object.values(salesByDrink),
+                backgroundColor: '#FFA500',
+                borderColor: '#FFA500',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Bebida'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Ventas'
                     }
                 }
             }
-        });
+        }
     });
+});
     </script>
 </body>
 </html>
