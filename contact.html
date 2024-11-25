@@ -62,6 +62,154 @@
 	<!--[if lt IE 9]>
 	<script src="js/respond.min.js"></script>
 	<![endif]-->
+	<style>
+		/* Botón flotante para abrir/cerrar el asistente */
+		#toggle-assistant-btn {
+		   position: fixed;
+		   bottom: 20px;
+		   right: 20px;
+		   background: linear-gradient(135deg, #FF7F50, #FF4500);
+		   color: white;
+		   border: none;
+		   border-radius: 50%;
+		   width: 60px;
+		   height: 60px;
+		   font-size: 24px;
+		   cursor: pointer;
+		   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+		   transition: all 0.3s ease;
+	   }
+   
+	   #toggle-assistant-btn:hover {
+		   transform: scale(1.1);
+		   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+	   }
+   
+	   /* Contenedor del asistente */
+	   #choppcito-assistant {
+		   position: fixed;
+		   bottom: 20px;
+		   right: 20px;
+		   width: 350px;
+		   background: linear-gradient(135deg, #ffffff, #f9f9f9);
+		   border: 2px solid #FF4500;
+		   border-radius: 20px;
+		   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+		   font-family: 'Arial', sans-serif;
+		   display: none;
+		   animation: fadeIn 0.3s ease-in-out;
+		   z-index: 1000;
+	   }
+   
+	   @keyframes fadeIn {
+		   from {
+			   opacity: 0;
+			   transform: translateY(20px);
+		   }
+		   to {
+			   opacity: 1;
+			   transform: translateY(0);
+		   }
+	   }
+   
+	   /* Encabezado del asistente */
+	   .chat-header {
+		   background: linear-gradient(135deg, #FF7F50, #FF4500);
+		   color: white;
+		   padding: 15px;
+		   border-radius: 20px 20px 0 0;
+		   display: flex;
+		   justify-content: space-between;
+		   align-items: center;
+		   font-size: 18px;
+	   }
+   
+	   .chat-header h4 {
+		   margin: 0;
+		   font-weight: bold;
+	   }
+   
+	   /* Cuerpo del chat */
+	   .chat-body {
+		   padding: 15px;
+	   }
+   
+	   .quick-buttons {
+		   display: flex;
+		   flex-wrap: wrap;
+		   gap: 10px;
+		   margin-bottom: 15px;
+	   }
+   
+	   .quick-btn {
+		   flex: 1;
+		   background: linear-gradient(135deg, #FF7F50, #FF4500);
+		   color: white;
+		   border: none;
+		   padding: 8px;
+		   border-radius: 15px;
+		   cursor: pointer;
+		   text-align: center;
+		   font-size: 14px;
+		   transition: background 0.3s;
+	   }
+   
+	   .quick-btn:hover {
+		   background: linear-gradient(135deg, #FF4500, #FF7F50);
+	   }
+   
+	   #chat-messages {
+		   height: 200px;
+		   overflow-y: auto;
+		   margin-bottom: 10px;
+		   padding: 10px;
+		   border-radius: 10px;
+		   background: #fefefe;
+		   border: 1px solid #eee;
+	   }
+   
+	   .message {
+		   margin: 5px 0;
+		   padding: 10px;
+		   border-radius: 10px;
+		   font-size: 14px;
+		   line-height: 1.4;
+		   max-width: 80%;
+	   }
+   
+	   .message.user {
+		   background: #FF7F50;
+		   color: white;
+		   align-self: flex-end;
+	   }
+   
+	   .message.assistant {
+		   background: #f0f0f0;
+		   color: #333;
+		   align-self: flex-start;
+	   }
+   
+	   #user-message {
+		   width: calc(100% - 80px);
+		   padding: 8px;
+		   border: 1px solid #ccc;
+		   border-radius: 10px;
+	   }
+   
+	   #send-message {
+		   background: linear-gradient(135deg, #FF7F50, #FF4500);
+		   border: none;
+		   color: white;
+		   padding: 8px 15px;
+		   border-radius: 10px;
+		   cursor: pointer;
+		   transition: background 0.3s;
+	   }
+   
+	   #send-message:hover {
+		   background: linear-gradient(135deg, #FF4500, #FF7F50);
+	   }
+	   </style>
 
 	</head>
 	<body>
@@ -165,10 +313,34 @@
 						</div>
 					</div>
 				</form>
+
 				
 				
 			</div>		
 			<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d349.9078520627915!2d-78.52063587168901!3d-7.154249879380172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91b25af81c5aaaab%3A0x3119c377d4baee9a!2sMister%20Chop!5e0!3m2!1ses-419!2spe!4v1730351339437!5m2!1ses-419!2spe" width="1344" height="450" style="border:10;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+		</div>
+	</div>
+
+	
+	<button id="toggle-assistant-btn">💬</button>
+
+	<div id="choppcito-assistant">
+		<div class="chat-header">
+			<h4>Choppcito 🍻</h4>
+			<button id="close-chat" style="background: none; border: none; color: white; font-size: 18px;">✖</button>
+		</div>
+		<div class="chat-body">
+			<div class="quick-buttons">
+				<button class="quick-btn" data-message="horarios">Horarios</button>
+				<button class="quick-btn" data-message="reservas">Reservas</button>
+				<button class="quick-btn" data-message="ubicacion">Ubicación</button>
+				<button class="quick-btn" data-message="menu">Menú y bebidas</button>
+			</div>
+			<div id="chat-messages"></div>
+			<div style="display: flex; gap: 10px;">
+				<input id="user-message" type="text" placeholder="Escribe un mensaje..." />
+				<button id="send-message">Enviar</button>
+			</div>
 		</div>
 	</div>
 
@@ -185,7 +357,86 @@
 
 	<!-- MAIN JS -->
 	<script src="js/main.js"></script>
+	<script>
+      const quickReplies = {
+    horarios: "Nuestro horario es: Lunes a Domingo 7:00 PM - 7:00 AM. ",
+    reservas: "Proporciónanos tu nombre, fecha y número de personas.",
+    ubicacion: "Nos encontramos en el centro de Cajamarca Jr. Amalia Puga 148 A-B. Consulta el mapa en nuestro sitio web.",
+    menu: "¡Revisa nuestro delicioso menú! Pisco Sour por S/18, Cuba Libre por S/12, entre otros."
+};
 
+const assistant = document.getElementById("choppcito-assistant");
+const toggleButton = document.getElementById("toggle-assistant-btn");
+const closeButton = document.getElementById("close-chat");
+const chatMessages = document.getElementById("chat-messages");
+
+// Función para cargar mensajes desde localStorage
+function loadMessages() {
+    const savedMessages = JSON.parse(localStorage.getItem("choppcitoMessages")) || [];
+    chatMessages.innerHTML = savedMessages.map(
+        msg => `<div class="message ${msg.type}">${msg.content}</div>`
+    ).join('');
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Desplazarse al final
+}
+
+// Función para guardar mensajes en localStorage
+function saveMessage(type, content) {
+    const savedMessages = JSON.parse(localStorage.getItem("choppcitoMessages")) || [];
+    savedMessages.push({ type, content });
+    localStorage.setItem("choppcitoMessages", JSON.stringify(savedMessages));
+}
+
+// Mostrar/ocultar el asistente
+toggleButton.addEventListener("click", () => {
+    const isOpen = assistant.style.display === "block";
+    assistant.style.display = isOpen ? "none" : "block";
+    if (!isOpen) loadMessages(); // Cargar mensajes al abrir
+});
+
+closeButton.addEventListener("click", () => {
+    assistant.style.display = "none";
+});
+
+// Respuesta rápida al hacer clic en botones
+document.querySelectorAll(".quick-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const message = quickReplies[button.dataset.message];
+        chatMessages.innerHTML += `<div class="message user">Consulta: ${button.dataset.message}</div>`;
+        chatMessages.innerHTML += `<div class="message assistant">${message}</div>`;
+        saveMessage("user", `Consulta: ${button.dataset.message}`);
+        saveMessage("assistant", message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+});
+
+// Enviar mensaje manualmente
+document.getElementById("send-message").addEventListener("click", function () {
+    const input = document.getElementById("user-message").value.trim().toLowerCase();
+    if (!input) return;
+
+    let reply = "Lo siento, no entendí tu mensaje. ¿Puedes intentarlo de nuevo?";
+    for (let [key, value] of Object.entries(quickReplies)) {
+        if (input.includes(key)) {
+            reply = value;
+            break;
+        }
+    }
+
+    const userMessage = `<div class="message user">${input}</div>`;
+    const choppcitoReply = `<div class="message assistant">${reply}</div>`;
+    chatMessages.innerHTML += userMessage + choppcitoReply;
+
+    saveMessage("user", input);
+    saveMessage("assistant", reply);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    document.getElementById("user-message").value = "";
+});
+
+// Cargar mensajes al inicio
+window.addEventListener("load", loadMessages);
+
+    </script>
 	</body>
 </html>
 
