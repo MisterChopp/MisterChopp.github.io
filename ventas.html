@@ -190,7 +190,29 @@
     
     <script>
         let orderCounter = localStorage.getItem('orderCounter') ? parseInt(localStorage.getItem('orderCounter')) : 1;
-        
+        localStorage.setItem("inventory", JSON.stringify([
+    { id: 'PR01', name: 'Sprite', stock: 50 },
+    { id: 'PR02', name: 'Pisco Nacional Quebranta', stock: 20 },
+    { id: 'PR03', name: 'Limón', stock: 100 },
+    { id: 'PR04', name: 'Coca Cola', stock: 40 },
+    { id: 'PR05', name: 'Clara de huevo', stock: 60 },
+    { id: 'PR06', name: 'Agua', stock: 100 },
+    { id: 'PR07', name: 'Jarabe de Goma', stock: 30 },
+    { id: 'PR08', name: 'Amargo de Angostura', stock: 15 },
+    { id: 'PR09', name: 'Jugo de Naranja', stock: 25 },
+    { id: 'PR10', name: 'Jarabe de Granadina', stock: 20 },
+    { id: 'PR11', name: 'Vodka', stock: 10 },
+    { id: 'PR12', name: 'Tequila', stock: 12 },
+    { id: 'PR13', name: 'Piña', stock: 30 },
+    { id: 'PR14', name: 'Crema de Coco', stock: 15 },
+    { id: 'PR15', name: 'Ron Blanco', stock: 10 },
+    { id: 'PR16', name: 'Licor de Café', stock: 27 },
+    { id: 'PR17', name: 'Bayleys', stock: 15 },
+    { id: 'PR18', name: 'Amaretto', stock: 27 },
+    { id: 'PR19', name: 'Leche', stock: 50 },
+    { id: 'PR20', name: 'Ron', stock: 10 },
+    { id: 'PR21', name: 'Cola', stock: 50 },
+]));
         let inventory = JSON.parse(localStorage.getItem("inventory")) || [
             { id: 'PR01', name: 'Sprite', stock: 50 },
             { id: 'PR02', name: 'Pisco Nacional Quebranta', stock: 20 },
@@ -352,7 +374,7 @@
     const margin = 10;
 
     // URL de la imagen
-    const imageUrl = 'https://media.discordapp.net/attachments/1017934104748101652/1310094122748481617/image.png?ex=6743f7bb&is=6742a63b&hm=eed2f32d36046029d8bf4fd93c6c6adfc2b0b4d3af5e075d388f8840af0e18b7&=&format=webp&quality=lossless&width=825&height=430';
+    const imageUrl = 'https://media.discordapp.net/attachments/1017934104748101652/1310094122748481617/image.png?ex=6744a07b&is=67434efb&hm=f62b06da9d7a67aea2a6dbf31d9f5a73cb37dc41a1bc35aa1e7efe1fed98eb2e&=&format=webp&quality=lossless&width=1507&height=786';
 
     try {
         // Convertir la imagen a Base64
