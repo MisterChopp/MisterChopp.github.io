@@ -182,6 +182,7 @@
             border: 1px solid #f5c6cb;
             border-radius: 5px;
         }
+        
     </style>
 </head>
 <body>
@@ -214,49 +215,63 @@
 
 		</aside>
 
-        <div id="fh5co-main">
-            <div class="fh5co-narrow-content animate-box">
-                <h2 class="fh5co-heading">Reservas</h2>
-                <div id="reservedDates" class="reserved-dates"></div>
-                <form id="reservationForm">
-                    <div class="form-group">
-                        <label for="name">Nombre</label>
-                        <input type="text" class="form-control" id="name" placeholder="Ingresa tu nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Teléfono</label>
-                        <input type="text" class="form-control" id="phone" placeholder="Ingresa tu teléfono" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Fecha</label>
-                        <input type="date" class="form-control" id="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="time">Hora</label>
-                        <input type="time" class="form-control" id="time" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="guests">Número de Personas</label>
-                        <input type="number" class="form-control" id="guests" placeholder="Número de invitados" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Reservar</button>
-                </form>
-                <div><h3></h3></div>
-                <h3 class="fh5co-heading">Cancelar Reserva</h3>
-                <form id="cancelForm">
-                    <div class="form-group">
-                        <label for="reservationCode">Código de Reserva</label>
-                        <input type="text" class="form-control" id="reservationCode" placeholder="Ingresa el código de reserva" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Cancelar Reserva</button>
-                </form>
-            </div>
+<div id="fh5co-main">
+    <div class="fh5co-narrow-content animate-box">
+        <h2 class="fh5co-heading text-center" style="color: #FF7F50;">Reservas</h2>
+        
+        <div id="reservedDates" class="reserved-dates">
+            <p>No hay fechas reservadas actualmente.</p>
         </div>
+        
+
+        <form id="reservationForm" style="padding: 20px; background: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <h3 style="margin-bottom: 20px; color: #FF7F50; text-align: center;">Hacer una Reserva</h3>
+            
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" class="form-control" id="name" placeholder="Ingresa tu nombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Teléfono</label>
+                <input type="text" class="form-control" id="phone" placeholder="Ingresa tu teléfono" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Fecha</label>
+                <input type="date" class="form-control" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="time">Hora</label>
+                <input type="time" class="form-control" id="time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="guests">Número de Personas</label>
+                <input type="number" class="form-control" id="guests" placeholder="Número de invitados" required>
+            </div>
+            
+            <button type="submit" class="btn btn-success btn-block" style="background-color: #FF7F50; border: none;">Reservar</button>
+        </form>
+
+        <h3 style="color: #FF7F50; text-align: center; margin-bottom: 20px;">Cancelar Reserva</h3>
+        
+        <form id="cancelForm" style="padding: 20px; background: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <div class="form-group">
+                <label for="reservationCode">Código de Reserva</label>
+                <input type="text" class="form-control" id="reservationCode" placeholder="Ingresa el código de reserva" required>
+            </div>
+            <button type="submit" class="btn btn-danger btn-block" style="background-color: #FF7F50; border: none;">Cancelar Reserva</button>
+        </form>
     </div>
+</div>
+
 
     <button id="toggle-assistant-btn">💬</button>
 
