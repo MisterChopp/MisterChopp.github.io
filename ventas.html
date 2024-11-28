@@ -190,29 +190,7 @@
     
     <script>
         let orderCounter = localStorage.getItem('orderCounter') ? parseInt(localStorage.getItem('orderCounter')) : 1;
-        localStorage.setItem("inventory", JSON.stringify([
-    { id: 'PR01', name: 'Sprite', stock: 50 },
-    { id: 'PR02', name: 'Pisco Nacional Quebranta', stock: 20 },
-    { id: 'PR03', name: 'Limón', stock: 100 },
-    { id: 'PR04', name: 'Coca Cola', stock: 40 },
-    { id: 'PR05', name: 'Clara de huevo', stock: 60 },
-    { id: 'PR06', name: 'Agua', stock: 100 },
-    { id: 'PR07', name: 'Jarabe de Goma', stock: 30 },
-    { id: 'PR08', name: 'Amargo de Angostura', stock: 15 },
-    { id: 'PR09', name: 'Jugo de Naranja', stock: 25 },
-    { id: 'PR10', name: 'Jarabe de Granadina', stock: 20 },
-    { id: 'PR11', name: 'Vodka', stock: 10 },
-    { id: 'PR12', name: 'Tequila', stock: 12 },
-    { id: 'PR13', name: 'Piña', stock: 30 },
-    { id: 'PR14', name: 'Crema de Coco', stock: 15 },
-    { id: 'PR15', name: 'Ron Blanco', stock: 10 },
-    { id: 'PR16', name: 'Licor de Café', stock: 27 },
-    { id: 'PR17', name: 'Bayleys', stock: 15 },
-    { id: 'PR18', name: 'Amaretto', stock: 27 },
-    { id: 'PR19', name: 'Leche', stock: 50 },
-    { id: 'PR20', name: 'Ron', stock: 10 },
-    { id: 'PR21', name: 'Cola', stock: 50 },
-]));
+
         let inventory = JSON.parse(localStorage.getItem("inventory")) || [
             { id: 'PR01', name: 'Sprite', stock: 50 },
             { id: 'PR02', name: 'Pisco Nacional Quebranta', stock: 20 },
@@ -248,10 +226,11 @@
             'Orgasmo': ['PR16', 'PR17', 'PR18', 'PR19'],
         };
         
-        function updateInventory(drinkNames) {
-            const updatedInventory = JSON.parse(localStorage.getItem("inventory"));
+                function updateInventory(drinkNames) {
+            const updatedInventory = JSON.parse(localStorage.getItem("inventory")) || [];
             let hasStock = true;
-        
+
+            // Verificar si hay suficiente stock antes de realizar cambios
             drinkNames.forEach(drink => {
                 const ingredients = drinkIngredients[drink];
                 ingredients.forEach(productId => {
@@ -262,21 +241,26 @@
                     }
                 });
             });
-        
+
             if (hasStock) {
                 drinkNames.forEach(drink => {
                     const ingredients = drinkIngredients[drink];
                     ingredients.forEach(productId => {
                         const product = updatedInventory.find(item => item.id === productId);
-                        if (product) product.stock--;
+                        if (product) {
+                            product.stock--;
+                        }
                     });
                 });
+
+                // Guardar los cambios en el localStorage
                 localStorage.setItem("inventory", JSON.stringify(updatedInventory));
+                console.log("Inventario actualizado:", updatedInventory); // Depuración
             } else {
                 throw new Error("No hay suficiente stock para completar la venta.");
             }
         }
-        
+
         function registerSale() {
     const employeeSelect = document.getElementById("employeeSelect");
     const customerName = document.getElementById("customerName").value;
@@ -362,6 +346,7 @@
         alert(error.message);
     }
 }
+
 
         
         async function generatePDF(sale) {
